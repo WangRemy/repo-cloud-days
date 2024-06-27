@@ -19,9 +19,6 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history to get accurate short SHA
 
-      - name: Set up Azure CLI
-        uses: azure/CLI@v1
-
       - name: Log in to Azure
         uses: azure/login@v1
         with:
