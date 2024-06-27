@@ -18,15 +18,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Fetch all history to get accurate short SHA
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Grant execute permission for Maven Wrapper
         run: chmod +x mvnw
@@ -34,11 +34,16 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean package
 
+
+      - name: Extract short SHA
+        id: vars
+        run: echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
+
       - name: Build Docker image
-        run: docker build -f src/main/docker/Dockerfile.jvm -t cloud-remy .
+        run: docker build -f src/main/docker/Dockerfile.jvm -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest .
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to Azure Container Registry
         uses: azure/docker-login@v1
@@ -48,11 +53,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push Docker image
-        run: docker push my-java-app
-
-      - name: Extract short SHA
-        id: vars
-        run: echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
+        run: docker push cloud-remy-latest
 
       - name: Tag Docker image with short SHA
         run: docker tag my-java-app ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
