@@ -27,6 +27,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
+
 
       - name: Grant execute permission for Maven Wrapper
         run: chmod +x mvnw
