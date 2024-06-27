@@ -32,7 +32,7 @@ jobs:
       - name: Deploy to Azure Container Instances
         run: |
           az container create \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --name cloud-remy-container \
             --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest \
             --cpu 1 \
@@ -46,7 +46,7 @@ jobs:
       - name: Verify Deployment
         run: |
           az container show \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --name cloud-remy-container \
             --query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" \
             --output table
