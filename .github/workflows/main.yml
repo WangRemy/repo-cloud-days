@@ -44,7 +44,16 @@ jobs:
 
       - name: Calculate next version
         id: next_version
-        run: echo "::set-output name=next_version::$(./calculate_next_version.sh ${{ steps.latest_tag.outputs.latest_tag }})"
+        run: |
+          # Extract major and minor version components
+          major=$(echo "${{ steps.latest_tag.outputs.latest_tag }}" | cut -d'.' -f1)
+          minor=$(echo "${{ steps.latest_tag.outputs.latest_tag }}" | cut -d'.' -f2)
+
+          # Increment the minor version
+          next_minor=$((minor + 1))
+
+          # Output the next version tag
+          echo "${major}.${next_minor}"
 
       - name: Build Docker image
         run: docker build -f src/main/docker/Dockerfile.jvm -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.next_version.outputs.next_version }} .
