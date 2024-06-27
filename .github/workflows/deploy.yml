@@ -1,0 +1,55 @@
+name: Deploy pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Fetch all history to get accurate short SHA
+
+      - name: Set up Azure CLI
+        uses: azure/CLI@v1
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Pull Docker image from ACR
+        run: |
+          az acr login --name ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          docker pull ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest
+
+      - name: Deploy to Azure Container Instances
+        run: |
+          az container create \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name cloud-remy-container \
+            --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest \
+            --cpu 1 \
+            --memory 1 \
+            --registry-login-server ${{ secrets.REGISTRY_LOGIN_SERVER }} \
+            --registry-username ${{ secrets.REGISTRY_USERNAME }} \
+            --registry-password ${{ secrets.REGISTRY_PASSWORD }} \
+            --dns-name-label cloud-remy-instance \
+            --ports 80
+
+      - name: Verify Deployment
+        run: |
+          az container show \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name cloud-remy-container \
+            --query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" \
+            --output table
