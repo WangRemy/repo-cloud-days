@@ -56,7 +56,7 @@ jobs:
         run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest
 
       - name: Tag Docker image with short SHA
-        run: docker tag my-java-app ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
+        run: docker tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
 
       - name: Push Docker image with short SHA tag
         run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
