@@ -41,7 +41,8 @@ jobs:
             --registry-username ${{ secrets.REGISTRY_USERNAME }} \
             --registry-password ${{ secrets.REGISTRY_PASSWORD }} \
             --dns-name-label cloud-remy-instance \
-            --ports 80
+            --ports 8080
+            --environment-variables WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
 
       - name: Verify Deployment
         run: |
