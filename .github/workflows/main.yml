@@ -1,32 +1,3 @@
-modem swap lcm,
-netflix lcm swap,
-itv, 
-
-
-dagen op basis van atp:
-
-
-maandag - > vrijdag 	4 werkdagen klopt wel
-dinsdag -> maandag  	4 werkdagen klopt wel
-woensdag -> maandag 	3 werkdagen klopt (wel)
-donderdag -> maandag 	2 werkdagen klopt niet
-vrijdag -> dinsdag 		2 werkdagen klopt niet
-zaterdag -> woensdag  	3 werkdagen klopt (wel)
-zondag -> donderdag  	4 werkdagen klopt wel
-
-checken WST acceptatie omgeving
-
-1203
-
-1 welke datum weet niet
-
-4 geen datu
-
-3 civil date bruiken
-
-Node.js 16 actions are deprecated. Please update the following actions to use Node.js 20: actions/checkout@v3, actions/setup-java@v3. For more information see: https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/.
-
-
 name: Best pipeline
 
 on:
