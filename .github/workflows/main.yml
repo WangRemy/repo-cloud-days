@@ -1,3 +1,32 @@
+modem swap lcm,
+netflix lcm swap,
+itv, 
+
+
+dagen op basis van atp:
+
+
+maandag - > vrijdag 	4 werkdagen klopt wel
+dinsdag -> maandag  	4 werkdagen klopt wel
+woensdag -> maandag 	3 werkdagen klopt (wel)
+donderdag -> maandag 	2 werkdagen klopt niet
+vrijdag -> dinsdag 		2 werkdagen klopt niet
+zaterdag -> woensdag  	3 werkdagen klopt (wel)
+zondag -> donderdag  	4 werkdagen klopt wel
+
+checken WST acceptatie omgeving
+
+1203
+
+1 welke datum weet niet
+
+4 geen datu
+
+3 civil date bruiken
+
+Node.js 16 actions are deprecated. Please update the following actions to use Node.js 20: actions/checkout@v3, actions/setup-java@v3. For more information see: https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20/.
+
+
 name: Best pipeline
 
 on:
@@ -38,25 +67,8 @@ jobs:
         id: vars
         run: echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
 
-      - name: Determine latest tag
-        id: latest_tag
-        run: echo "::set-output name=latest_tag::$(git describe --abbrev=0 --tags)"
-
-      - name: Calculate next version
-        id: next_version
-        run: |
-          # Extract major and minor version components
-          major=$(echo "${{ steps.latest_tag.outputs.latest_tag }}" | cut -d'.' -f1)
-          minor=$(echo "${{ steps.latest_tag.outputs.latest_tag }}" | cut -d'.' -f2)
-
-          # Increment the minor version
-          next_minor=$((minor + 1))
-
-          # Output the next version tag
-          echo "${major}.${next_minor}"
-
       - name: Build Docker image
-        run: docker build -f src/main/docker/Dockerfile.jvm -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.next_version.outputs.next_version }} .
+        run: docker build -f src/main/docker/Dockerfile.jvm -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest .
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -69,4 +81,10 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push Docker image
-        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.next_version.outputs.next_version }}
+        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest
+
+      - name: Tag Docker image with short SHA
+        run: docker tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
+
+      - name: Push Docker image with short SHA tag
+        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
