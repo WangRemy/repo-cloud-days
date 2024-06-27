@@ -27,6 +27,8 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/java/openjdk11  # Ensure JAVA_HOME is set correctly
 
       - name: Grant execute permission for Maven Wrapper
         run: chmod +x mvnw
