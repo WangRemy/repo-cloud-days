@@ -34,12 +34,33 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean package
 
-      - name: Extract short SHA
-        id: vars
-        run: echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
+      - name: Set initial version
+        id: set_version
+        run: echo "::set-output name=version::1.0"
+
+      - name: Determine latest tag
+        id: latest_tag
+        run: echo "::set-output name=latest_tag::$(git describe --abbrev=0 --tags)"
+
+      - name: Calculate next version
+        id: next_version
+        run: |
+          # Determine the current version
+          current_version=$(echo "${{ steps.set_version.outputs.version }}")
+
+          # Increment the patch version
+          IFS='.' read -ra version_parts <<< "$current_version"
+          major="${version_parts[0]}"
+          minor="${version_parts[1]}"
+          next_minor=$((minor + 1))
+
+          # Set the next version
+          next_version="${major}.${next_minor}"
+
+          echo "::set-output name=next_version::${next_version}"
 
       - name: Build Docker image
-        run: docker build -f src/main/docker/Dockerfile.jvm -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest .
+        run: docker build -f src/main/docker/Dockerfile.jvm -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.next_version.outputs.next_version }} .
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -52,10 +73,4 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push Docker image
-        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest
-
-      - name: Tag Docker image with short SHA
-        run: docker tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:latest ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
-
-      - name: Push Docker image with short SHA tag
-        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.vars.outputs.short_sha }}
+        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/cloud-remy:${{ steps.next_version.outputs.next_version }}
