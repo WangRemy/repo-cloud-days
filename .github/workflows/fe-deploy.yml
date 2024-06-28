@@ -56,18 +56,17 @@ jobs:
           tar -xzf build.tar.gz -C extract
         shell: bash
 
-      - name: Install Azure CLI
+      - name: Log in to Azure CLI
         uses: azure/CLI@v1
         with:
           azcliversion: '2.61.0'
-
-      - name: Log in to Azure CLI
-        run: az login --service-principal -u ${{ secrets.AZURE_CREDENTIALS.clientId }} -p ${{ secrets.AZURE_CREDENTIALS.clientSecret }} --tenant ${{ secrets.AZURE_CREDENTIALS.tenantId }}
+          inlineScript: |
+            az login --service-principal -u ${{ secrets.AZURE_CREDENTIALS.clientId }} -p ${{ secrets.AZURE_CREDENTIALS.clientSecret }} --tenant ${{ secrets.AZURE_CREDENTIALS.tenantId }}
 
       - name: Deploy to Azure Static Web App
         run: |
           az staticwebapp upload \
-            --name your-static-web-app-name \
-            --resource-group your-resource-group \
+            --name remy-static-web-app \
+            --resource-group rg-accelerator-lg1 \
             --source-path ./extract \
             --token ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
