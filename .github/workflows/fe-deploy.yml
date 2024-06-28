@@ -30,11 +30,6 @@ jobs:
         run: npm run build
         working-directory: ./frontend  # Adjust to your frontend directory
 
-      - name: Archive production artifacts
-        run: |
-          tar -czf build.tar.gz -C ./frontend/build .
-        shell: bash
-
       - name: Upload artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
